@@ -12,8 +12,8 @@ export default function CartProvider({ children }: { children: React.ReactNode }
       cartMode="client-only"
       stripe={process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!} // Pass as a string
       currency="USD"
-      successUrl="http://localhost:3000/success"
-      cancelUrl="http://localhost:3000"
+      successUrl="https://next-ecommerce-eight-kappa.vercel.app//success"
+      cancelUrl="https://next-ecommerce-eight-kappa.vercel.app/cancel"
       billingAddressCollection={true}
       shouldPersist={true} // Keep cart data persistent
       language="en-US"
