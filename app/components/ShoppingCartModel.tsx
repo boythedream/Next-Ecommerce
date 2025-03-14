@@ -67,24 +67,33 @@ const ShoppingCartModel: React.FC = () => {
     0
   );
 
-  // Handle checkout
+  // Handle checkout - FIXED VERSION
   const handleCheckout = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     try {
-      // Create checkout options compatible with the library
-      const checkoutOptions = {
-        mode: "payment",
-        lineItems: cartItems.map((item) => ({
-          price: item.price_id,
-          quantity: item.quantity,
-        })),
-        successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/cancel`,
-      };
-
-      // Use the correct type for redirectToCheckout
-      const result = await redirectToCheckout(checkoutOptions);
+      // Create a checkout session through an API endpoint
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: cartItems.map((item) => ({
+            price: item.price_id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const { sessionId } = await response.json();
+      
+      // Now redirect using just the session ID as expected by the function
+      const result = await redirectToCheckout(sessionId);
 
       if (result?.error) {
         console.error("❌ Error during checkout:", result.error.message);
@@ -92,11 +101,8 @@ const ShoppingCartModel: React.FC = () => {
       }
     } catch (error) {
       console.error("❌ Error during checkout:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      window.location.href = `${window.location.origin}/error?error=${encodeURIComponent(
-        errorMessage
-      )}`;
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      window.location.href = `${window.location.origin}/error?error=${encodeURIComponent(errorMessage)}`;
     }
   };
 
