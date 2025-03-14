@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useShoppingCart } from "use-shopping-cart";
+import { useShoppingCart,  } from "use-shopping-cart";
 
 const links = [
   { name: "Home", href: "/" },
@@ -17,7 +17,7 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { handleCartClick, cartCount } = useShoppingCart(); // Get dynamic cart count
+  const { handleCartClick, cartCount = 0 } = useShoppingCart(); // Get dynamic cart count
 
   return (
     <header className="mb-4 border-b bg-white shadow-md">
