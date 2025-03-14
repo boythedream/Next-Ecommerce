@@ -5,48 +5,46 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useShoppingCart,  } from "use-shopping-cart";
+import { useShoppingCart } from "use-shopping-cart";
 
-const links = [
-  { name: "Home", href: "/" },
-  { name: "Men", href: "/Men" },
-  { name: "Women", href: "/Women" },
-  { name: "Teens", href: "/Teens" },
+const navLinks = [
+  { label: "Home", href: "/" },
+  { label: "Men", href: "/Men" },
+  { label: "Women", href: "/Women" },
+  { label: "Teens", href: "/Teens" },
 ];
 
-export default function Navbar() {
+export default function LuxNav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { handleCartClick, cartCount = 0 } = useShoppingCart(); // Get dynamic cart count
 
   return (
-    <header className="mb-4 border-b bg-white shadow-md">
-      <div className="flex items-center justify-between mx-auto px-3 sm:px-10 lg:px-10 py-4 sm:py-4 lg:py-4 max-w-7xl">
+    <header className="mb-4 border-b bg-white shadow-lg">
+      <div className="flex items-center justify-between mx-auto px-5 sm:px-10 lg:px-16 py-4 max-w-7xl">
         {/* Logo */}
-        <Link href="/">
-          <h1 className="text-3xl md:text-4xl font-bold">
-            Next<span className="text-primary">Ecommerce</span>
-          </h1>
+        <Link href="/" className="text-3xl md:text-4xl font-bold tracking-wide">
+          Shop<span className="text-primary">Sphere</span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex gap-10">
-          {links.map((link, idx) => (
+          {navLinks.map((link, idx) => (
             <Link
               key={idx}
               href={link.href}
-              className={`text-lg font-semibold transition duration-200 ${
+              className={`text-lg font-medium transition duration-300 ${
                 pathname === link.href
-                  ? "text-primary"
-                  : "text-gray-600 hover:text-primary"
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-gray-700 hover:text-primary"
               }`}
             >
-              {link.name}
+              {link.label}
             </Link>
           ))}
         </nav>
 
-        {/* Right Section - Cart & Hamburger */}
+        {/* Right Section - Cart & Mobile Menu */}
         <div className="flex items-center space-x-6">
           {/* Cart Button with Dynamic Count */}
           <Button
@@ -64,7 +62,7 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-3 rounded-md focus:outline-none"
+            className="lg:hidden p-3 rounded-md focus:outline-none transition hover:bg-gray-200"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X size={30} /> : <Menu size={30} />}
@@ -73,26 +71,28 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Dropdown Menu */}
-      {isOpen && (
-        <div className="lg:hidden absolute top-20 left-0 w-full bg-white border-t shadow-md py-6 z-50">
-          <nav className="flex flex-col items-center gap-6">
-            {links.map((link, idx) => (
-              <Link
-                key={idx}
-                href={link.href}
-                className={`text-lg font-semibold transition duration-200 ${
-                  pathname === link.href
-                    ? "text-primary"
-                    : "text-gray-600 hover:text-primary"
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+      <div
+        className={`lg:hidden fixed inset-0 bg-white transform ${
+          isOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+        } transition-transform duration-300 ease-in-out z-50 shadow-lg border-t`}
+      >
+        <nav className="flex flex-col items-center gap-6 pt-10">
+          {navLinks.map((link, idx) => (
+            <Link
+              key={idx}
+              href={link.href}
+              className={`text-xl font-medium transition duration-200 ${
+                pathname === link.href
+                  ? "text-primary border-b-2 border-primary pb-1"
+                  : "text-gray-700 hover:text-primary"
+              }`}
+              onClick={() => setIsOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
     </header>
   );
 }
