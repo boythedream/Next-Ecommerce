@@ -67,44 +67,25 @@ const ShoppingCartModel: React.FC = () => {
     0
   );
 
-  // Handle checkout - FIXED VERSION
+  // Handle checkout
   const handleCheckout = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    try {
-      // Create a checkout session through an API endpoint
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          items: cartItems.map((item) => ({
-            price: item.price_id,
-            quantity: item.quantity,
-          })),
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      
-      const { sessionId } = await response.json();
-      
-      // Now redirect using just the session ID as expected by the function
-      const result = await redirectToCheckout(sessionId);
+  try {
+    // Ensure `redirectToCheckout` is called properly
+    const result = await redirectToCheckout('checkout-session-id');
 
-      if (result?.error) {
-        console.error("❌ Error during checkout:", result.error.message);
-        window.location.href = `${window.location.origin}/error?error=${encodeURIComponent(result.error.message)}`;
-      }
-    } catch (error) {
-      console.error("❌ Error during checkout:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      window.location.href = `${window.location.origin}/error?error=${encodeURIComponent(errorMessage)}`;
+    if (result?.error) {
+      console.error("❌ Error during checkout:", result.error.message);
+      window.location.href = `${window.location.origin}/error?error=${encodeURIComponent(result.error.message)}`;
     }
-  };
+  } catch (error) {
+    console.error("❌ Error during checkout:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    window.location.href = `${window.location.origin}/error?error=${encodeURIComponent(errorMessage)}`;
+  }
+};
+
 
   const handleContinueShopping = () => {
     // Toggle cart visibility without parameters
