@@ -23,12 +23,14 @@ interface CartItem {
   image: string;
 }
 
-// Define CheckoutOptions type
-interface CheckoutOptions {
-  mode: "payment" | "subscription";
-  lineItems: { price: string; quantity: number }[];
-  successUrl: string;
-  cancelUrl: string;
+// Define the shape of the cart details item from use-shopping-cart
+interface ShoppingCartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  price_id?: string; // Make this optional since it might not be present
 }
 
 const ShoppingCartModel: React.FC = () => {
@@ -45,16 +47,19 @@ const ShoppingCartModel: React.FC = () => {
   const router = useRouter();
   const isCartEmpty = !cartDetails || Object.keys(cartDetails).length === 0;
 
-  // Ensure cartDetails is typed correctly
-// Ensure cartDetails is typed correctly
-const cartItems: CartItem[] = Object.values(cartDetails ?? {}).map((item) => ({
-  id: item.id,
-  name: item.name,
-  price: item.price,
-  price_id: (item as any).price_id ?? "", // Ensure price_id exists
-  quantity: item.quantity,
-  image: item.image,
-}));
+  // Transform cartDetails into a properly typed array
+  const cartItems: CartItem[] = Object.values(cartDetails ?? {}).map((item) => {
+    // Cast item to our intermediate type
+    const cartItem = item as unknown as ShoppingCartItem;
+    return {
+      id: cartItem.id,
+      name: cartItem.name,
+      price: cartItem.price,
+      price_id: cartItem.price_id || "", // Use empty string as fallback
+      quantity: cartItem.quantity,
+      image: cartItem.image,
+    };
+  });
 
   // Calculate subtotal
   const subtotal: number = cartItems.reduce(
@@ -67,7 +72,8 @@ const cartItems: CartItem[] = Object.values(cartDetails ?? {}).map((item) => ({
     event.preventDefault();
 
     try {
-      const checkoutOptions: CheckoutOptions = {
+      // Create checkout options compatible with the library
+      const checkoutOptions = {
         mode: "payment",
         lineItems: cartItems.map((item) => ({
           price: item.price_id,
@@ -77,6 +83,7 @@ const cartItems: CartItem[] = Object.values(cartDetails ?? {}).map((item) => ({
         cancelUrl: `${window.location.origin}/cancel`,
       };
 
+      // Use the correct type for redirectToCheckout
       const result = await redirectToCheckout(checkoutOptions);
 
       if (result?.error) {
@@ -94,7 +101,8 @@ const cartItems: CartItem[] = Object.values(cartDetails ?? {}).map((item) => ({
   };
 
   const handleContinueShopping = () => {
-    handleCartClick(false); // Close the cart
+    // Toggle cart visibility without parameters
+    handleCartClick();
     router.push("/"); // Navigate to shop page
   };
 
